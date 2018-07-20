@@ -20,8 +20,9 @@ body,
 
 .search-results {
   width: 100%;
-  height: auto;
+  height: 100%;
   margin: 0 auto;
+  padding: 10px;
   display: flex;
   justify-content: center;
   flex-direction: row;
@@ -35,3 +36,23 @@ body,
 .image {
   height: 100%;
   width: 100%; }
+
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: black;
+  opacity: 1;
+  padding: 10px;
+  height: 100%;
+  width: 100%;
+  z-index: 10; }
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #fff; }

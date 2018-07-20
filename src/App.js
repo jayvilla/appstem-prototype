@@ -2,16 +2,34 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./styles/App.css";
 
+import ImageSearchAPI from './api/image-search.js';
+import WordsAPI from './api/words.js';
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       searchTerm: "",
       searchResults: [],
-      combos: {}
+      combos: {},
+      imageToShowURL: '',
+      showImageOverlay: false
     };
 
+    this.handleImageClick = this.handleImageClick.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
+  }
+
+  formatWord(word) {
+    return word.replace(/\W+|[0-9]+/gi, "");
+  }
+
+  async isValidWord(word) {
+    return WordsAPI(word);
+  }
+
+  async getSearchResults(searchTerm) {
+    return ImageSearchAPI(searchTerm);
   }
 
   renderResults() {
@@ -20,46 +38,19 @@ class App extends Component {
     return searchResults.map((result, i) => {
       return (
         <div className="result-image-wrapper" key={i}>
-          <img
-            className="image"
-            src={result.url}
-          />
+          <img onClick={() => this.handleImageClick(result.url)} className="image" src={result.url} />
         </div>
-      )
-    })
-  }
-
-  formatWord(word) {
-    return word.replace(/\W+|[0-9]+/gi, "");
-  }
-
-  async isValidWord(word) {
-    try {
-      let uri = `https://wordsapiv1.p.mashape.com/words/${word}`;
-      let options = {
-        method: "GET",
-        headers: {
-          "X-Mashape-Key": "5gdwILBqvCmshk6QILmOV86OQ2HYp10PAiojsnpzNX3eom7oaO",
-          "X-Mashape-Host": "wordsapiv1.p.mashape.com"
-        }
-      };
-
-      let response = await fetch(uri, options);
-      let json = await response.json();
-
-      return json.results ? true : false;
-    } catch (e) {
-      console.log(e);
-    }
+      );
+    });
   }
 
   getVowelCombos() {
-    let vowels = ['a', 'e', 'i', 'o', 'u'];
+    let vowels = ["a", "e", "i", "o", "u"];
     let combos = {};
 
-    return this.createVowelCombos = (word, start) => {
+    return (this.createVowelCombos = (word, start) => {
       let currentWord = word;
-      let splitWord = word.split('');
+      let splitWord = word.split("");
 
       if (word in combos) return;
 
@@ -70,35 +61,36 @@ class App extends Component {
 
       if (splitWord[start].match(/[aeiou]/gi)) {
         for (let j = 0; j < 5; j++) {
-          currentWord = currentWord.split('');
+          currentWord = currentWord.split("");
           currentWord.splice(start, 1, vowels[j]);
-          currentWord = currentWord.join('');
-          this.createVowelCombos(currentWord, start+1)
+          currentWord = currentWord.join("");
+          this.createVowelCombos(currentWord, start + 1);
         }
       } else {
-        this.createVowelCombos(currentWord, start+1);
+        this.createVowelCombos(currentWord, start + 1);
       }
 
       return combos;
-    }
+    });
   }
 
-  async getSearchResults(searchTerm) {
-    try {
-      let uri = `https://contextualwebsearch-websearch-v1.p.mashape.com/api/Search/ImageSearchAPI?count=10&q=${searchTerm}&autoCorrect=false`;
-      let options = {
-        method: "GET",
-        headers: {
-          "X-Mashape-Key": "5gdwILBqvCmshk6QILmOV86OQ2HYp10PAiojsnpzNX3eom7oaO",
-          "X-Mashape-Host": "contextualwebsearch-websearch-v1.p.mashape.com"
-        }
-      };
-      let response = await fetch(uri, options);
-      let json = await response.json();
-      return json;
-    } catch(e) {
-      console.log(e);
+  handleImageClick(imageURL) {
+    if (!this.state.showImageOverlay) {
+      this.setState({
+        showImageOverlay: true,
+        imageToShowURL: imageURL
+      })
     }
+    else {
+      this.setState({
+        showImageOverlay: false,
+        imageToShowURL: ''
+      })
+    }
+    console.log(imageURL)
+    this.setState({ showImageOverlay: !this.state.showImageOverlay }, () => {
+      console.log(this.state)
+    });
   }
 
   async handleFormSubmit(e) {
@@ -111,7 +103,6 @@ class App extends Component {
     if (isValidWord) {
       let searchResults = await this.getSearchResults(searchTerm);
       this.setState({ searchResults: searchResults.value });
-      console.log('searchResults 1', searchResults);
     } else {
       let vowelCombos = this.getVowelCombos();
       vowelCombos = vowelCombos(searchTerm, 0);
@@ -119,10 +110,9 @@ class App extends Component {
       for (let word in vowelCombos) {
         let comboIsValid = await this.isValidWord(word);
         if (comboIsValid) {
-          this.setState({ searchTerm: word })
+          this.setState({ searchTerm: word });
           let searchResults = await this.getSearchResults(word);
           this.setState({ searchResults: searchResults.value });
-          console.log('search results 2: ', searchResults);
           break;
         }
       }
@@ -130,7 +120,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state)
     return (
       <div className="App">
         <div className="search-field">
@@ -144,6 +133,17 @@ class App extends Component {
             <button type="submit">Search</button>
           </form>
         </div>
+
+        {this.state.showImageOverlay && this.state.imageToShowURL && (
+          <div className="overlay">
+            <div
+              className="close-button"
+              onClick={this.handleImageClick}
+            >X
+            </div>
+            <img src={this.state.imageToShowURL} />
+          </div>
+        )}
 
         <div className="search-results">
           {this.state.searchResults && this.renderResults()}
