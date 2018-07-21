@@ -55,7 +55,7 @@ class App extends Component {
     let vowels = ["a", "e", "i", "o", "u"];
     let combos = {};
 
-    return (this.createVowelCombos = (word, start) => {
+    return this.createVowelCombos = (word, start) => {
       let currentWord = word;
       let splitWord = word.split("");
 
