@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./styles/App.css";
 
-import ImageSearchAPI from './api/image-search.js';
-import WordsAPI from './api/words.js';
+import ImageSearchAPI from "./api/image-search.js";
+import WordsAPI from "./api/words.js";
 
 class App extends Component {
   constructor() {
@@ -11,8 +10,7 @@ class App extends Component {
     this.state = {
       searchTerm: "",
       searchResults: [],
-      combos: {},
-      imageToShowURL: '',
+      imageToShowURL: "",
       showImageOverlay: false
     };
 
@@ -38,7 +36,11 @@ class App extends Component {
     return searchResults.map((result, i) => {
       return (
         <div className="result-image-wrapper" key={i}>
-          <img onClick={() => this.handleImageClick(result.url)} className="image" src={result.url} />
+          <img
+            className="image"
+            src={result.url}
+            onClick={() => this.handleImageClick(result.url)}
+          />
         </div>
       );
     });
@@ -79,22 +81,23 @@ class App extends Component {
       this.setState({
         showImageOverlay: true,
         imageToShowURL: imageURL
-      })
-    }
-    else {
+      });
+    } else {
       this.setState({
         showImageOverlay: false,
-        imageToShowURL: ''
-      })
+        imageToShowURL: ""
+      });
     }
-    console.log(imageURL)
-    this.setState({ showImageOverlay: !this.state.showImageOverlay }, () => {
-      console.log(this.state)
-    });
   }
 
   async handleFormSubmit(e) {
     e.preventDefault();
+
+    if (!this.state.searchTerm) {
+      alert('Please enter a search term');
+      return;
+    }
+
     let { searchTerm } = this.state;
     searchTerm = this.formatWord(searchTerm);
 
@@ -123,9 +126,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="search-field">
-          <form onSubmit={this.handleFormSubmit}>
+          <form className="search-form" onSubmit={this.handleFormSubmit}>
             <input
-              placeholder="Search"
+              placeholder="Enter search here..."
               type="text"
               value={this.state.searchTerm}
               onChange={e => this.setState({ searchTerm: e.target.value })}
@@ -134,16 +137,18 @@ class App extends Component {
           </form>
         </div>
 
-        {this.state.showImageOverlay && this.state.imageToShowURL && (
-          <div className="overlay">
-            <div
-              className="close-button"
-              onClick={this.handleImageClick}
-            >X
+        {this.state.showImageOverlay &&
+          this.state.imageToShowURL && (
+            <div className="overlay">
+              <div className="close-button" onClick={this.handleImageClick}>
+                X
+              </div>
+              <img
+                className="overlay-image"
+                src={this.state.imageToShowURL}
+              />
             </div>
-            <img src={this.state.imageToShowURL} />
-          </div>
-        )}
+          )}
 
         <div className="search-results">
           {this.state.searchResults && this.renderResults()}
