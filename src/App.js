@@ -3,14 +3,16 @@ import "./styles/App.css";
 
 import ImageSearchAPI from "./api/image-search.js";
 import WordsAPI from "./api/words.js";
+import LOADER from "./assets/loader.gif";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
+      imageToShowURL: "",
+      loading: false,
       searchTerm: "",
       searchResults: [],
-      imageToShowURL: "",
       showImageOverlay: false
     };
 
@@ -38,6 +40,7 @@ class App extends Component {
         <div className="result-image-wrapper" key={i}>
           <img
             className="image"
+            alt=""
             src={result.url}
             onClick={() => this.handleImageClick(result.url)}
           />
@@ -93,31 +96,55 @@ class App extends Component {
   async handleFormSubmit(e) {
     e.preventDefault();
 
+    let { searchTerm } = this.state;
+    searchTerm = this.formatWord(searchTerm);
+
+    if (!searchTerm) {
+      alert('Please enter a valid search term');
+      return;
+    }
+
     if (!this.state.searchTerm) {
       alert('Please enter a search term');
       return;
     }
 
-    let { searchTerm } = this.state;
-    searchTerm = this.formatWord(searchTerm);
+    this.setState({ loading: true })
 
     let isValidWord = await this.isValidWord(searchTerm);
 
     if (isValidWord) {
       let searchResults = await this.getSearchResults(searchTerm);
-      this.setState({ searchResults: searchResults.value });
+      this.setState({
+        searchResults: searchResults.value,
+        loading: false
+      });
     } else {
       let vowelCombos = this.getVowelCombos();
       vowelCombos = vowelCombos(searchTerm, 0);
 
+      let comboIsValid = null;
+
+      // loop through all combos and check if word is valid
       for (let word in vowelCombos) {
-        let comboIsValid = await this.isValidWord(word);
+        comboIsValid = await this.isValidWord(word);
         if (comboIsValid) {
           this.setState({ searchTerm: word });
           let searchResults = await this.getSearchResults(word);
-          this.setState({ searchResults: searchResults.value });
+          this.setState({
+            searchResults: searchResults.value,
+            loading: false
+          });
+          // short circuit loop to cut out as soon as first
+          // valid word is found
           break;
         }
+      }
+
+      if (!comboIsValid) {
+        alert('Please enter a valid search term');
+        this.setState({ loading: false });
+        return;
       }
     }
   }
@@ -145,13 +172,19 @@ class App extends Component {
               </div>
               <img
                 className="overlay-image"
+                alt=""
                 src={this.state.imageToShowURL}
               />
             </div>
           )}
 
         <div className="search-results">
-          {this.state.searchResults && this.renderResults()}
+          {this.state.searchResults && !this.state.loading && this.renderResults()}
+          {this.state.loading && (
+            <div className="loader">
+              <img alt="" src={LOADER} />
+            </div>
+          )}
         </div>
       </div>
     );

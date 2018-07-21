@@ -38,6 +38,10 @@ button[type="submit"] {
   height: 35px;
   border: none;
   background-color: #cecece;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .search-results {
@@ -49,6 +53,12 @@ button[type="submit"] {
   justify-content: center;
   flex-direction: row;
   flex-wrap: wrap;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 
 .result-image-wrapper {
@@ -90,7 +100,7 @@ button[type="submit"] {
     max-height: 700px;
   }
   /* tablet up */
-  @media (max-width: 769px) {
+  @media (min-width: 769px) {
     max-width: 700px;
     max-height: 700px;
   }

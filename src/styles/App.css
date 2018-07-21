@@ -32,6 +32,8 @@ button[type="submit"] {
   height: 35px;
   border: none;
   background-color: #cecece; }
+  button[type="submit"]:focus {
+    outline: none; }
 
 .search-results {
   width: 100%;
@@ -42,6 +44,11 @@ button[type="submit"] {
   justify-content: center;
   flex-direction: row;
   flex-wrap: wrap; }
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%; }
 
 .result-image-wrapper {
   height: 250px;
@@ -80,7 +87,7 @@ button[type="submit"] {
     .overlay-image {
       max-width: 700px;
       max-height: 700px; } }
-  @media (max-width: 769px) {
+  @media (min-width: 769px) {
     .overlay-image {
       max-width: 700px;
       max-height: 700px; } }
