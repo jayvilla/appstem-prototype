@@ -21,7 +21,9 @@ class App extends Component {
   }
 
   formatWord(word) {
-    return word.replace(/\W+|[0-9]+/gi, "");
+    let formattedWord = word.replace(/\W+|[0-9]+/gi, "");
+    this.setState({ searchTerm: formattedWord });
+    return formattedWord
   }
 
   async isValidWord(word) {
@@ -98,11 +100,6 @@ class App extends Component {
 
     let { searchTerm } = this.state;
     searchTerm = this.formatWord(searchTerm);
-
-    if (!searchTerm) {
-      alert('Please enter a valid search term');
-      return;
-    }
 
     if (!this.state.searchTerm) {
       alert('Please enter a search term');
