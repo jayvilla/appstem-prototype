@@ -13,6 +13,6 @@ This is a simple image search application with spell check.
 5. The search term will then be run through an image search API (if the first word is valid, it will skip to this step)
 6. The api then returns at maximum 50 results.
 7. Errors that are checked for include:
-  - No search term is entered.
-  - Search term is entered but non alphabet. (Ex. @$#^%#$@)
-  - Search term is entered but no possible spellcheck available. (Ex. vbncmna)
+    - No search term is entered.
+    - Search term is entered but non alphabet. (Ex. @$#^%#$@)
+    - Search term is entered but no possible spellcheck available. (Ex. vbnmna)
